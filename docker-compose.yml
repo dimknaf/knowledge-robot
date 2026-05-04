@@ -1,0 +1,84 @@
+version: "3.8"
+
+# Base Docker Compose for Knowledge Robot
+#
+# This base file is shared between the OSS local-dev workflow and any
+# production deployment. It declares both `image:` (used by Docker Swarm)
+# and `build:` (used by `docker compose build`), exposes no ports at the
+# base level (overlays add them), and avoids host-specific bind mounts.
+#
+# Compose with one of:
+#   - docker-compose.local.yml      (local dev — adds port mappings + .env)
+#   - docker-compose.windowed.yml   (WSLg overlay for visible Chromium)
+#   - your own production overlay   (see CLAUDE.md → Production Deployment)
+
+services:
+  frontend:
+    image: knowledge-robot-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      network: host
+    environment:
+      # Server-side only (NOT exposed to browser)
+      - BACKEND_URL=${BACKEND_URL:-http://backend:8080}
+      - API_SECRET_KEY=${API_SECRET_KEY:-}
+    depends_on:
+      - backend
+    networks:
+      - knowledge-robot-net
+    restart: unless-stopped
+
+  backend:
+    image: knowledge-robot-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      network: host
+    environment:
+      # ---- LLM provider (profile-driven via LiteLLM) ----
+      # LLM_PROFILE picks an entry from backend/API/config.py::_LLM_PROFILES.
+      # Default profile `deepinfra` requires DEEPINFRA_API_KEY at runtime.
+      - LLM_PROFILE=${LLM_PROFILE:-deepinfra}
+      - DEEPINFRA_API_KEY=${DEEPINFRA_API_KEY:-}
+      # Optional: override the model string for the active profile
+      - AGENT_MODEL=${AGENT_MODEL:-}
+      # ---- Agent loop ----
+      - AGENT_MAX_TURNS=${AGENT_MAX_TURNS:-15}
+      - AGENT_SUBAGENT_MAX_TURNS=${AGENT_SUBAGENT_MAX_TURNS:-30}
+      - TOOL_OUTPUT_MAX_CHARS=${TOOL_OUTPUT_MAX_CHARS:-8000}
+      # ---- Firecrawl MCP (optional — only needed for the firecrawl scrape backend) ----
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
+      - FIRECRAWL_MAX_CONTENT_LENGTH=${FIRECRAWL_MAX_CONTENT_LENGTH:-20000}
+      - MCP_SERVER_URL=${MCP_SERVER_URL:-https://mcp.firecrawl.dev}
+      - MCP_TIMEOUT=${MCP_TIMEOUT:-10}
+      - MCP_CLIENT_TIMEOUT=${MCP_CLIENT_TIMEOUT:-20}
+      # ---- Local browser (Playwright + crawl4ai) ----
+      - MIN_NAVIGATION_DELAY=${MIN_NAVIGATION_DELAY:-2.0}
+      - MAX_NAVIGATION_DELAY=${MAX_NAVIGATION_DELAY:-5.0}
+      - PAGE_LOAD_TIMEOUT=${PAGE_LOAD_TIMEOUT:-30000}
+      # ---- Feature flags ----
+      - USE_AGENTIC=${USE_AGENTIC:-true}
+      - DEBUG_MODE=${DEBUG_MODE:-false}
+      # ---- Security ----
+      - API_SECRET_KEY=${API_SECRET_KEY:-}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      # ---- Gunicorn (consumed by backend/API/run.sh) ----
+      - KNOWLEDGE_ROBOT_WORKERS=${KNOWLEDGE_ROBOT_WORKERS:-1}
+      - KNOWLEDGE_ROBOT_THREADS=${KNOWLEDGE_ROBOT_THREADS:-16}
+      - KNOWLEDGE_ROBOT_TIMEOUT=${KNOWLEDGE_ROBOT_TIMEOUT:-600}
+      - KNOWLEDGE_ROBOT_BINDING_ADDRESS=${KNOWLEDGE_ROBOT_BINDING_ADDRESS:-0.0.0.0:8080}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - knowledge-robot-net
+    restart: unless-stopped
+
+networks:
+  knowledge-robot-net:
+    driver: overlay
+    attachable: true

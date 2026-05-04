@@ -1,0 +1,26 @@
+# WSLg overlay — adds a visible Chromium window on the Windows desktop.
+#
+# Requires Windows 11 with WSL2 (Docker Desktop's WSL2 backend, default on Win11).
+# WSLg is the built-in Wayland/X server provided by Microsoft; mounting its sockets
+# into the container lets headed Chromium draw natively on the host desktop.
+#
+# Usage:
+#   docker-compose -f docker-compose.local.yml -f docker-compose.windowed.yml up --build
+#
+# Then in the UI: select "Local" backend + tick "Show browser window".
+# (The frontend reads browser_visible_supported=true from /api/agent-status.)
+#
+# Concurrency caveat: with concurrent_runs > 1 you'll see multiple Chromium
+# windows fight for screen real estate. Clamp to 1 in the UI when watching.
+
+services:
+  backend:
+    environment:
+      - DISPLAY=:0
+      - WAYLAND_DISPLAY=wayland-0
+      - XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir
+      - PULSE_SERVER=/mnt/wslg/PulseServer
+      - BROWSER_VISIBLE_SUPPORTED=true
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /mnt/wslg:/mnt/wslg

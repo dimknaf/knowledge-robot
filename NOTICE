@@ -1,0 +1,7 @@
+Knowledge Robot
+Copyright 2026 Knowledge Robot contributors
+
+This product includes software developed by third parties under various
+permissive licenses. See the respective package manifests for details:
+  - frontend/package.json
+  - backend/requirements.txt
