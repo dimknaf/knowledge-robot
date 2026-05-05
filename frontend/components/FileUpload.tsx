@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Upload, FileSpreadsheet } from 'lucide-react';
 import { parseCSV } from '@/lib/csvParser';
 import { CsvData } from '@/types';
@@ -12,6 +12,7 @@ interface FileUploadProps {
 
 export default function FileUpload({ onFileUpload, disabled }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,72 +58,113 @@ export default function FileUpload({ onFileUpload, disabled }: FileUploadProps) 
     [onFileUpload]
   );
 
+  const openPicker = () => {
+    if (disabled) return;
+    inputRef.current?.click();
+  };
+
   return (
     <div
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled}
+      aria-label="Upload CSV file: click anywhere in this area or drag a file here"
+      onClick={openPicker}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openPicker();
+        }
+      }}
       className={`
-        relative rounded-2xl border-2 border-dashed p-12 text-center
-        transition-all duration-300 ease-out
-        bg-gradient-to-br from-slate-50 to-white
+        relative rounded-[var(--radius-xl)] border border-dashed p-10 md:p-12 text-center
+        bg-[var(--surface)] shadow-[var(--shadow-card)]
+        transition-[border-color,background-color,box-shadow] duration-200 ease-out
         ${isDragging
-          ? 'border-indigo-500 bg-indigo-50/50 shadow-lg shadow-indigo-500/10 scale-[1.01]'
-          : 'border-slate-300 hover:border-indigo-400 hover:shadow-lg hover:shadow-slate-200/50'
+          ? 'border-[var(--primary)] bg-[var(--info-bg)] shadow-[var(--shadow-card-hover)]'
+          : 'border-[var(--border-strong)] hover:border-[var(--primary)] hover:shadow-[var(--shadow-card-hover)]'
         }
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+        focus:outline-none
       `}
+      style={{
+        backgroundImage: !isDragging
+          ? 'radial-gradient(circle at 50% 0%, rgba(99, 91, 255, 0.05) 0%, transparent 60%)'
+          : undefined,
+      }}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {/* Decorative background element */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
-
-      <div className="relative">
-        <div className={`
-          mx-auto mb-6 w-20 h-20 rounded-2xl flex items-center justify-center
-          bg-gradient-to-br from-indigo-100 to-indigo-50
-          transition-all duration-300
-          ${isDragging ? 'scale-110' : 'group-hover:scale-105'}
-        `}>
+      <div className="relative pointer-events-none">
+        {/* Icon zone — 64px circle with subtle gradient */}
+        <div
+          className={`
+            mx-auto mb-5 w-16 h-16 rounded-full flex items-center justify-center
+            border transition-[transform,background,border-color] duration-200
+            ${isDragging
+              ? 'border-[var(--primary)]/40 scale-105'
+              : 'border-[var(--border)]'
+            }
+          `}
+          style={{
+            background: isDragging
+              ? 'linear-gradient(135deg, rgba(99, 91, 255, 0.18), rgba(0, 212, 255, 0.10))'
+              : 'linear-gradient(135deg, rgba(99, 91, 255, 0.10), rgba(99, 91, 255, 0.02))',
+          }}
+        >
           {isDragging ? (
-            <FileSpreadsheet className="text-indigo-600" size={36} />
+            <FileSpreadsheet className="text-[var(--primary)]" size={24} strokeWidth={2} />
           ) : (
-            <Upload className="text-indigo-500" size={36} />
+            <Upload className="text-[var(--primary)]" size={24} strokeWidth={2} />
           )}
         </div>
 
-        <label className={`cursor-pointer ${disabled ? 'pointer-events-none' : ''}`}>
-          <div className="space-y-2">
-            <p className="text-lg font-medium text-slate-700">
-              {isDragging ? (
-                <span className="text-indigo-600">Drop your file here</span>
-              ) : (
-                <>
-                  <span className="text-indigo-600 hover:text-indigo-700 transition-colors">
-                    Click to upload
-                  </span>
-                  <span className="text-slate-600"> or drag and drop</span>
-                </>
-              )}
-            </p>
-            <p className="text-sm text-slate-500">
-              CSV files only (up to 10MB)
-            </p>
-          </div>
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleFileChange}
-            className="hidden"
-            disabled={disabled}
-          />
-        </label>
+        <div className="space-y-1.5">
+          <p className="text-base font-medium text-[var(--foreground)]">
+            {isDragging ? (
+              <span className="text-[var(--primary)] font-semibold">Drop your file here</span>
+            ) : (
+              <>
+                <span className="text-[var(--primary)] font-semibold">
+                  Click to upload
+                </span>
+                <span className="text-[var(--foreground-muted)]"> or drag and drop</span>
+              </>
+            )}
+          </p>
+          <p className="text-xs text-[var(--foreground-subtle)]">
+            CSV files only · up to 10 MB
+          </p>
+        </div>
 
-        {/* File format badge */}
-        <div className="mt-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium">
-          <FileSpreadsheet size={14} />
-          .csv
+        {/* Workflow step trail */}
+        <div className="mt-7 flex items-center justify-center gap-2.5 text-[10px] font-semibold uppercase tracking-[0.08em]">
+          <span className="flex items-center gap-1.5 text-[var(--primary)]">
+            <span className="step-badge !w-4 !h-4 !text-[9px]">1</span>
+            Upload
+          </span>
+          <span className="text-[var(--border-strong)]" aria-hidden="true">·</span>
+          <span className="flex items-center gap-1.5 text-[var(--foreground-subtle)]">
+            <span className="step-badge-muted !w-4 !h-4 !text-[9px]">2</span>
+            Configure
+          </span>
+          <span className="text-[var(--border-strong)]" aria-hidden="true">·</span>
+          <span className="flex items-center gap-1.5 text-[var(--foreground-subtle)]">
+            <span className="step-badge-muted !w-4 !h-4 !text-[9px]">3</span>
+            Run
+          </span>
         </div>
       </div>
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".csv"
+        onChange={handleFileChange}
+        className="hidden"
+        disabled={disabled}
+      />
     </div>
   );
 }

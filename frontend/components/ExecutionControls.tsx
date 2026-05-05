@@ -25,23 +25,22 @@ export default function ExecutionControls({
 }: ExecutionControlsProps) {
   return (
     <div className="card-base-static">
-      <div className="flex items-center gap-2 mb-5">
-        <div className="p-2 rounded-lg bg-gradient-to-br from-slate-100 to-slate-50">
-          <Settings size={18} className="text-slate-600" />
-        </div>
-        <h3 className="font-semibold text-slate-800">Execution Controls</h3>
+      <div className="flex items-center gap-2 mb-4">
+        <span className="step-badge">3</span>
+        <Settings size={16} className="text-[var(--foreground-muted)]" strokeWidth={2} />
+        <h3 className="text-base font-semibold text-[var(--foreground)] tracking-tight">Execution Controls</h3>
       </div>
 
-      <div className="space-y-5">
+      <div className="space-y-4">
         {/* Concurrent Runs Slider */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <label className="text-sm font-medium text-slate-700">
+          <div className="flex items-center justify-between mb-2.5">
+            <label className="text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--foreground-subtle)]">
               Concurrent Runs
             </label>
             <div className="flex items-center gap-1.5">
-              <Zap size={14} className="text-indigo-500" />
-              <span className="text-sm font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+              <Zap size={12} className="text-[var(--foreground-muted)]" strokeWidth={1.75} />
+              <span className="text-sm font-semibold text-[var(--foreground)] tabular-nums">
                 {concurrentRuns}
               </span>
             </div>
@@ -55,7 +54,7 @@ export default function ExecutionControls({
             disabled={disabled || isProcessing}
             className="w-full"
           />
-          <div className="flex justify-between text-xs text-slate-400 mt-2 px-0.5">
+          <div className="flex justify-between text-[10px] text-[var(--foreground-subtle)] mt-1.5 px-0.5 tabular-nums">
             <span>1</span>
             <span>5</span>
             <span>10</span>
@@ -63,53 +62,54 @@ export default function ExecutionControls({
         </div>
 
         {/* Include Input Checkbox */}
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200/60">
+        <div className="flex items-center gap-2.5">
           <input
             type="checkbox"
             id="includeInput"
             checked={includeInput}
             onChange={(e) => onIncludeInputChange(e.target.checked)}
             disabled={disabled || isProcessing}
-            className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 focus:ring-offset-0 disabled:opacity-50 cursor-pointer"
+            className="w-4 h-4 accent-[var(--primary)] border-[var(--border-strong)] rounded-[var(--radius-sm)] focus:ring-[var(--ring)] focus:ring-offset-0 disabled:opacity-50 cursor-pointer"
           />
-          <label htmlFor="includeInput" className="text-sm text-slate-700 cursor-pointer select-none">
+          <label htmlFor="includeInput" className="text-sm text-[var(--foreground)] cursor-pointer select-none">
             Include input columns in output
           </label>
         </div>
 
-        {/* Action Buttons */}
-        <div className="pt-2">
+        {/* Action Buttons — primary CTA gets h-11 (only place taller than h-9) */}
+        <div className="pt-1">
           {!isProcessing ? (
             <button
               onClick={onStart}
               disabled={disabled}
               className="
-                w-full flex items-center justify-center gap-2.5 px-6 py-3.5
-                bg-gradient-to-r from-emerald-500 to-emerald-600 text-white
-                rounded-xl font-semibold text-base
-                shadow-lg shadow-emerald-500/25
-                hover:from-emerald-600 hover:to-emerald-700 hover:shadow-xl hover:shadow-emerald-500/30
-                active:scale-[0.98] transition-all duration-150
-                disabled:from-slate-400 disabled:to-slate-500 disabled:shadow-none disabled:cursor-not-allowed
+                w-full inline-flex items-center justify-center gap-2 h-11 px-4
+                bg-[var(--primary)] text-[var(--primary-foreground)]
+                rounded-[var(--radius-md)] font-semibold text-sm tracking-tight
+                shadow-[var(--shadow-sm)]
+                hover:bg-[var(--primary-hover)]
+                active:scale-[0.97] transition-[background-color,transform] duration-150
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]
+                disabled:bg-[var(--foreground-subtle)] disabled:opacity-60 disabled:cursor-not-allowed
               "
             >
-              <Play size={20} />
+              <Play size={16} strokeWidth={2} />
               Start Processing
             </button>
           ) : (
             <button
               onClick={onStop}
               className="
-                w-full flex items-center justify-center gap-2.5 px-6 py-3.5
-                bg-gradient-to-r from-red-500 to-red-600 text-white
-                rounded-xl font-semibold text-base
-                shadow-lg shadow-red-500/25
-                hover:from-red-600 hover:to-red-700 hover:shadow-xl hover:shadow-red-500/30
-                active:scale-[0.98] transition-all duration-150
-                animate-pulse
+                w-full inline-flex items-center justify-center gap-2 h-11 px-4
+                bg-[var(--danger)] text-[var(--primary-foreground)]
+                rounded-[var(--radius-md)] font-semibold text-sm tracking-tight
+                shadow-[var(--shadow-sm)]
+                hover:brightness-95
+                active:scale-[0.97] transition-[filter,transform] duration-150
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--danger)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]
               "
             >
-              <StopCircle size={20} />
+              <StopCircle size={16} strokeWidth={2} />
               Stop Processing
             </button>
           )}

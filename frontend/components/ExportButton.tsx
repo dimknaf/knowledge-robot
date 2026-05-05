@@ -51,7 +51,7 @@ export default function ExportButton({
       disabled={disabled || !hasCompletedRows}
       className="btn-primary flex items-center justify-center gap-2 group"
     >
-      <Download size={18} className="group-hover:animate-bounce-subtle" />
+      <Download size={16} strokeWidth={2} className="group-hover:animate-bounce-subtle" />
       Export to CSV
     </button>
   );

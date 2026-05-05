@@ -1,32 +1,145 @@
 @import "tailwindcss";
 
+/* ============================================
+   DESIGN TOKENS — Stripe Dashboard
+   ============================================
+   Faint cool-purple page wash, deep navy ink, Stripe purple primary,
+   layered duotone shadows, dimensional richness — NOT austere.
+*/
+
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* Surfaces */
+  --background:        #f6f9fc;  /* Stripe's signature faint cool-purple page wash */
+  --surface:           #ffffff;
+  --surface-muted:     #ebeff5;
+  --surface-sunken:    #e6ebf1;
+
+  /* Ink — Stripe's deep navy */
+  --foreground:        #0a2540;
+  --foreground-muted:  #425466;
+  --foreground-subtle: #8898aa;
+
+  /* Borders */
+  --border:            #e3e8ee;
+  --border-strong:     #c1c9d6;
+
+  /* Brand — actual Stripe purple-blue */
+  --primary:           #635bff;
+  --primary-hover:     #4f46e5;
+  --primary-darker:    #5048e5;  /* gradient stop on CTAs */
+  --primary-foreground:#ffffff;
+  --accent:            #00d4ff;  /* electric cyan — micro highlights only */
+
+  /* Status */
+  --success:           #0e7c66;
+  --success-bg:        #e6fcf5;
+  --warning:           #b45309;
+  --warning-bg:        #fef3c7;
+  --danger:            #cd3500;
+  --danger-bg:         #fff1f0;
+  --info:              #635bff;
+  --info-bg:           #efeefe;
+
+  /* Focus ring */
+  --ring:              #635bff;
+
+  /* Radii */
+  --radius-sm:  4px;
+  --radius:     8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;   /* cards */
+  --radius-xl: 14px;   /* modals, hero */
+
+  /* Shadows — Stripe layered duotone (bluish + neutral) */
+  --shadow-xs:        0 1px 0   rgba(50, 50, 93, 0.05);
+  --shadow-sm:        0 1px 2px rgba(50, 50, 93, 0.08), 0 1px 1px rgba(0, 0, 0, 0.04);
+  --shadow-card:      0 1px 3px rgba(50, 50, 93, 0.10), 0 1px 2px rgba(0, 0, 0, 0.07);
+  --shadow-card-hover:0 6px 20px rgba(50, 50, 93, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+  --shadow-pop:       0 24px 48px rgba(50, 50, 93, 0.18), 0 2px 12px rgba(0, 0, 0, 0.08);
+  --shadow-focus:     0 0 0 4px rgba(99, 91, 255, 0.18);
+
+  /* CTA gradient (used on .btn-primary) */
+  --gradient-primary: linear-gradient(180deg, var(--primary) 0%, var(--primary-darker) 100%);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background:         var(--background);
+  --color-foreground:         var(--foreground);
+  --color-foreground-muted:   var(--foreground-muted);
+  --color-foreground-subtle:  var(--foreground-subtle);
+  --color-surface:            var(--surface);
+  --color-surface-muted:      var(--surface-muted);
+  --color-surface-sunken:     var(--surface-sunken);
+  --color-border:             var(--border);
+  --color-border-strong:      var(--border-strong);
+  --color-primary:            var(--primary);
+  --color-primary-hover:      var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent:             var(--accent);
+  --color-success:            var(--success);
+  --color-success-bg:         var(--success-bg);
+  --color-warning:            var(--warning);
+  --color-warning-bg:         var(--warning-bg);
+  --color-danger:             var(--danger);
+  --color-danger-bg:          var(--danger-bg);
+  --color-info:               var(--info);
+  --color-info-bg:            var(--info-bg);
+  --color-ring:               var(--ring);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Custom Shadows */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
-  --shadow-glow-indigo: 0 0 20px rgba(99, 102, 241, 0.3);
-  --shadow-glow-emerald: 0 0 20px rgba(16, 185, 129, 0.3);
+  --radius-sm: var(--radius-sm);
+  --radius:    var(--radius);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
 
-  /* Border Radius */
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
+  --shadow-card:       var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-pop:        var(--shadow-pop);
 }
 
+/* ============================================
+   TYPOGRAPHY — confident hierarchy
+   ============================================
+   14px base (fintech-correct), but headlines are RESTORED to confident sizes.
+   v2 went too austere with text-2xl h1; Stripe uses 28-32px headlines.
+*/
+
+html { font-size: 15px; }
+
 body {
-  background: var(--background);
+  background:
+    radial-gradient(ellipse 80rem 40rem at 50% -10rem,
+      rgba(99, 91, 255, 0.08) 0%,
+      transparent 70%),
+    var(--background);
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-feature-settings: "cv11", "ss01", "ss03";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+/* Headline ladder */
+h1 { font-size: 2rem;    line-height: 1.15; letter-spacing: -0.020em; font-weight: 700; }  /* ~28px @ 14px base */
+h2 { font-size: 1.5rem;  line-height: 1.20; letter-spacing: -0.018em; font-weight: 700; }  /* ~21px */
+h3 { font-size: 1rem;    line-height: 1.30; letter-spacing: -0.012em; font-weight: 600; }  /* ~14px — but visible weight */
+h4 { font-size: 0.875rem;line-height: 1.30; letter-spacing: -0.008em; font-weight: 600; }
+h1, h2, h3, h4, h5, h6 {
+  font-feature-settings: "cv11", "ss01", "ss03";
+}
+
+/* Tabular nums — every numeric column / counter / row index */
+.tabular-nums,
+table,
+input[type="number"],
+[class*="tabular"] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
 /* ============================================
@@ -34,248 +147,249 @@ body {
    ============================================ */
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 20px 5px rgba(99, 102, 241, 0.1);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(205, 53, 0, 0.30); }
+  50%      { box-shadow: 0 0 14px 3px rgba(205, 53, 0, 0.06); }
 }
 
 @keyframes progress-stripes {
-  0% {
-    background-position: 1rem 0;
-  }
-  100% {
-    background-position: 0 0;
-  }
+  0%   { background-position: 1rem 0; }
+  100% { background-position: 0 0; }
 }
 
 @keyframes bounce-subtle {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
 }
 
 @keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
-/* Animation utilities */
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out forwards;
+@keyframes status-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
 }
 
-.animate-slideUp {
-  animation: slideUp 0.4s ease-out forwards;
-}
-
-.animate-shimmer {
-  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+.animate-fadeIn        { animation: fadeIn 0.2s ease-out forwards; }
+.animate-slideUp       { animation: slideUp 0.25s ease-out forwards; }
+.animate-shimmer       {
+  background: linear-gradient(90deg, var(--surface-muted) 25%, var(--surface) 50%, var(--surface-muted) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s infinite;
-}
-
+.animate-pulse-glow    { animation: pulse-glow 2s infinite; }
 .animate-progress-stripes {
   background-image: linear-gradient(
     45deg,
-    rgba(255, 255, 255, 0.15) 25%,
+    rgba(255, 255, 255, 0.20) 25%,
     transparent 25%,
     transparent 50%,
-    rgba(255, 255, 255, 0.15) 50%,
-    rgba(255, 255, 255, 0.15) 75%,
+    rgba(255, 255, 255, 0.20) 50%,
+    rgba(255, 255, 255, 0.20) 75%,
     transparent 75%,
     transparent
   );
   background-size: 1rem 1rem;
   animation: progress-stripes 1s linear infinite;
 }
-
-.animate-bounce-subtle {
-  animation: bounce-subtle 0.5s ease-in-out;
-}
+.animate-bounce-subtle { animation: bounce-subtle 0.5s ease-in-out; }
+.animate-status-pulse  { animation: status-dot-pulse 2s ease-in-out infinite; }
 
 /* ============================================
-   UTILITY CLASSES
+   UTILITY CLASSES — Stripe-grade
    ============================================ */
 
-/* Card Base Styles */
+/* Cards — layered duotone shadow, subtle hover lift */
 .card-base {
-  @apply bg-white rounded-xl border border-slate-200/60 p-5
-         shadow-[0_1px_3px_rgba(0,0,0,0.1),0_1px_2px_rgba(0,0,0,0.06)]
-         transition-all duration-200
-         hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)];
+  @apply bg-[var(--surface)] rounded-[var(--radius-lg)] border border-[var(--border)] p-5
+         shadow-[var(--shadow-card)]
+         transition-shadow duration-200 ease-out
+         hover:shadow-[var(--shadow-card-hover)];
 }
 
 .card-base-static {
-  @apply bg-white rounded-xl border border-slate-200/60 p-5
-         shadow-[0_1px_3px_rgba(0,0,0,0.1),0_1px_2px_rgba(0,0,0,0.06)];
+  @apply bg-[var(--surface)] rounded-[var(--radius-lg)] border border-[var(--border)] p-5
+         shadow-[var(--shadow-card)];
 }
 
-/* Button Variants */
+/* Primary button — Stripe-style 2-stop gradient + signature focus glow */
 .btn-primary {
-  @apply bg-gradient-to-r from-indigo-500 to-indigo-600 text-white
-         rounded-lg px-4 py-2 font-medium
-         shadow-md shadow-indigo-500/20
-         hover:from-indigo-600 hover:to-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30
-         active:scale-[0.98] transition-all duration-150
-         focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:ring-offset-2
-         disabled:from-slate-400 disabled:to-slate-500 disabled:shadow-none disabled:cursor-not-allowed;
+  @apply inline-flex items-center justify-center h-9 px-4 gap-2
+         text-[var(--primary-foreground)]
+         rounded-[var(--radius)] font-medium text-sm
+         shadow-[var(--shadow-sm)]
+         transition-[background,transform,box-shadow] duration-150
+         active:scale-[0.97]
+         disabled:opacity-50 disabled:cursor-not-allowed;
+  background: var(--gradient-primary);
+}
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, var(--primary-hover) 0%, #4338ca 100%);
+}
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-sm), var(--shadow-focus);
+}
+.btn-primary:disabled {
+  background: var(--foreground-subtle);
 }
 
 .btn-secondary {
-  @apply bg-white text-slate-700 rounded-lg px-4 py-2 font-medium
-         border border-slate-300
-         hover:bg-slate-50 hover:border-slate-400
-         active:scale-[0.98] transition-all duration-150
-         focus:outline-none focus:ring-2 focus:ring-slate-500/30 focus:ring-offset-2
-         disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed;
+  @apply inline-flex items-center justify-center h-9 px-4 gap-2
+         bg-[var(--surface)] text-[var(--foreground)]
+         rounded-[var(--radius)] font-medium text-sm
+         border border-[var(--border-strong)]
+         shadow-[var(--shadow-xs)]
+         hover:bg-[var(--surface-muted)] hover:border-[var(--foreground-muted)]
+         active:scale-[0.97]
+         transition-[background-color,border-color,transform,box-shadow] duration-150
+         focus:outline-none focus-visible:ring-0
+         disabled:bg-[var(--surface-muted)] disabled:text-[var(--foreground-subtle)] disabled:cursor-not-allowed;
+}
+.btn-secondary:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-xs), var(--shadow-focus);
 }
 
 .btn-success {
-  @apply bg-gradient-to-r from-emerald-500 to-emerald-600 text-white
-         rounded-lg px-4 py-2 font-medium
-         shadow-md shadow-emerald-500/20
-         hover:from-emerald-600 hover:to-emerald-700 hover:shadow-lg hover:shadow-emerald-500/30
-         active:scale-[0.98] transition-all duration-150
-         focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-2
-         disabled:from-slate-400 disabled:to-slate-500 disabled:shadow-none disabled:cursor-not-allowed;
+  @apply inline-flex items-center justify-center h-9 px-4 gap-2
+         bg-[var(--success)] text-[var(--primary-foreground)]
+         rounded-[var(--radius)] font-medium text-sm
+         shadow-[var(--shadow-sm)]
+         hover:brightness-95
+         active:scale-[0.97] transition-[filter,transform] duration-150
+         disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .btn-danger {
-  @apply bg-gradient-to-r from-red-500 to-red-600 text-white
-         rounded-lg px-4 py-2 font-medium
-         shadow-md shadow-red-500/20
-         hover:from-red-600 hover:to-red-700 hover:shadow-lg hover:shadow-red-500/30
-         active:scale-[0.98] transition-all duration-150
-         focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2;
+  @apply inline-flex items-center justify-center h-9 px-4 gap-2
+         bg-[var(--danger)] text-[var(--primary-foreground)]
+         rounded-[var(--radius)] font-medium text-sm
+         shadow-[var(--shadow-sm)]
+         hover:brightness-95
+         active:scale-[0.97] transition-[filter,transform] duration-150;
 }
 
-/* Input Styles */
+/* Inputs — focus glow ring (Stripe pattern) */
 .input-base {
-  @apply w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg
-         text-slate-800 placeholder:text-slate-400
-         focus:outline-none focus:ring-2 focus:ring-indigo-500/30
-         focus:border-indigo-500 transition-all duration-150
-         disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed;
+  @apply w-full h-9 px-3 bg-[var(--surface)] border border-[var(--border-strong)] rounded-[var(--radius)]
+         text-sm text-[var(--foreground)] placeholder:text-[var(--foreground-subtle)]
+         transition-[border-color,box-shadow] duration-150
+         disabled:bg-[var(--surface-muted)] disabled:text-[var(--foreground-subtle)] disabled:cursor-not-allowed;
+}
+.input-base:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--shadow-focus);
 }
 
 .textarea-base {
-  @apply w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl
-         text-slate-800 placeholder:text-slate-400
-         focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20
-         focus:border-indigo-400 transition-all duration-200 resize-none;
+  @apply w-full px-3 py-2.5 bg-[var(--surface-muted)] border border-[var(--border-strong)] rounded-[var(--radius-md)]
+         text-sm text-[var(--foreground)] placeholder:text-[var(--foreground-subtle)]
+         transition-[background-color,border-color,box-shadow] duration-150 resize-none;
+}
+.textarea-base:focus {
+  outline: none;
+  background: var(--surface);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-focus);
 }
 
-/* Badge Styles */
+/* Badges */
 .badge {
-  @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium
-         border transition-all duration-150;
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium
+         border transition-colors duration-120;
 }
+.badge-indigo  { @apply bg-[var(--info-bg)]    text-[var(--info)]    border-[var(--info)]/15; }
+.badge-emerald { @apply bg-[var(--success-bg)] text-[var(--success)] border-[var(--success)]/15; }
+.badge-red     { @apply bg-[var(--danger-bg)]  text-[var(--danger)]  border-[var(--danger)]/15; }
+.badge-amber   { @apply bg-[var(--warning-bg)] text-[var(--warning)] border-[var(--warning)]/15; }
+.badge-slate   { @apply bg-[var(--surface-muted)] text-[var(--foreground-muted)] border-[var(--border)]; }
 
-.badge-indigo {
-  @apply bg-gradient-to-r from-indigo-100 to-indigo-50 text-indigo-700
-         border-indigo-200/50;
-}
+/* Status rows */
+.status-row-completed  { @apply bg-[var(--success-bg)]/60 border-l-2 border-[var(--success)]; }
+.status-row-processing { @apply bg-[var(--info-bg)]/60    border-l-2 border-[var(--primary)]; }
+.status-row-error      { @apply bg-[var(--danger-bg)]/60  border-l-2 border-[var(--danger)]; }
+.status-row-pending    { @apply bg-[var(--surface-muted)]/40 border-l-2 border-[var(--border-strong)]; }
 
-.badge-emerald {
-  @apply bg-gradient-to-r from-emerald-100 to-emerald-50 text-emerald-700
-         border-emerald-200/50;
-}
-
-.badge-red {
-  @apply bg-gradient-to-r from-red-100 to-red-50 text-red-700
-         border-red-200/50;
-}
-
-.badge-amber {
-  @apply bg-gradient-to-r from-amber-100 to-amber-50 text-amber-700
-         border-amber-200/50;
-}
-
-.badge-slate {
-  @apply bg-gradient-to-r from-slate-100 to-slate-50 text-slate-600
-         border-slate-200/50;
-}
-
-/* Status Row Styles */
-.status-row-completed {
-  @apply bg-gradient-to-r from-emerald-50/50 to-transparent border-l-4 border-emerald-400;
-}
-
-.status-row-processing {
-  @apply bg-gradient-to-r from-indigo-50/50 to-transparent border-l-4 border-indigo-400;
-}
-
-.status-row-error {
-  @apply bg-gradient-to-r from-red-50/50 to-transparent border-l-4 border-red-400;
-}
-
-.status-row-pending {
-  @apply bg-slate-50/30 border-l-4 border-slate-300;
-}
-
-/* Skeleton Loading */
+/* Skeleton */
 .skeleton {
-  @apply bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200
-         bg-[length:200%_100%] rounded;
+  background: linear-gradient(90deg, var(--surface-muted) 25%, var(--surface) 50%, var(--surface-muted) 75%);
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
   animation: shimmer 1.5s infinite;
 }
 
-/* Glassmorphism */
-.glass {
-  @apply bg-white/80 backdrop-blur-md;
-}
-
-.glass-dark {
-  @apply bg-slate-900/60 backdrop-blur-sm;
-}
+/* Glass */
+.glass      { @apply bg-[var(--surface)]/85 backdrop-blur-md; }
+.glass-dark { @apply bg-[var(--foreground)]/40 backdrop-blur-sm; }
 
 /* ============================================
-   RANGE SLIDER STYLING
+   NEW v3 UTILITIES — hero, step, stat, eyebrow
+   ============================================ */
+
+/* Hero backdrop — radial Stripe-style purple wash */
+.hero-backdrop {
+  background:
+    radial-gradient(circle at 20% 0%,
+      rgba(99, 91, 255, 0.10) 0%,
+      transparent 55%),
+    radial-gradient(circle at 80% 0%,
+      rgba(0, 212, 255, 0.06) 0%,
+      transparent 55%),
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      transparent 100%);
+}
+
+/* Step badge — small numbered circle */
+.step-badge {
+  @apply inline-flex items-center justify-center w-5 h-5 rounded-full
+         text-[var(--primary-foreground)]
+         text-[10px] font-bold tabular-nums
+         shadow-[var(--shadow-sm)]
+         flex-shrink-0;
+  background: var(--gradient-primary);
+}
+
+.step-badge-muted {
+  @apply inline-flex items-center justify-center w-5 h-5 rounded-full
+         bg-[var(--foreground-subtle)] text-[var(--primary-foreground)]
+         text-[10px] font-bold tabular-nums
+         flex-shrink-0;
+}
+
+/* Eyebrow label */
+.eyebrow {
+  @apply text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--foreground-subtle)];
+}
+
+/* Status dot */
+.status-dot {
+  @apply inline-block w-1.5 h-1.5 rounded-full;
+}
+.status-dot-live    { @apply bg-[var(--success)]; }
+.status-dot-warning { @apply bg-[var(--warning)]; }
+.status-dot-offline { @apply bg-[var(--foreground-subtle)]; }
+
+/* ============================================
+   RANGE SLIDER — Stripe purple thumb
    ============================================ */
 
 input[type="range"] {
@@ -285,81 +399,52 @@ input[type="range"] {
   cursor: pointer;
 }
 
-/* Track */
-input[type="range"]::-webkit-slider-track {
-  background: linear-gradient(to right, #e2e8f0, #f1f5f9);
-  height: 0.5rem;
-  border-radius: 0.5rem;
-}
-
+input[type="range"]::-webkit-slider-track,
 input[type="range"]::-moz-range-track {
-  background: linear-gradient(to right, #e2e8f0, #f1f5f9);
-  height: 0.5rem;
-  border-radius: 0.5rem;
+  background: var(--border);
+  height: 0.375rem;
+  border-radius: var(--radius-sm);
 }
 
-/* Thumb - Updated to Indigo */
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  height: 1.25rem;
-  width: 1.25rem;
+  height: 1.125rem;
+  width: 1.125rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  border: 2px solid white;
-  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.4);
+  background: var(--gradient-primary);
+  border: 2px solid var(--surface);
+  box-shadow: var(--shadow-sm);
   margin-top: -0.375rem;
-  transition: all 0.15s ease;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 input[type="range"]::-moz-range-thumb {
-  height: 1.25rem;
-  width: 1.25rem;
+  height: 1.125rem;
+  width: 1.125rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  border: 2px solid white;
-  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.4);
-  transition: all 0.15s ease;
+  background: var(--gradient-primary);
+  border: 2px solid var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-/* Hover states */
-input[type="range"]:hover::-webkit-slider-thumb {
-  background: linear-gradient(135deg, #4f46e5, #4338ca);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.5);
-  transform: scale(1.1);
-}
-
+input[type="range"]:hover::-webkit-slider-thumb,
 input[type="range"]:hover::-moz-range-thumb {
-  background: linear-gradient(135deg, #4f46e5, #4338ca);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.5);
-  transform: scale(1.1);
+  transform: scale(1.06);
+  box-shadow: var(--shadow-card);
 }
 
-/* Focus states */
-input[type="range"]:focus::-webkit-slider-thumb {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3), 0 2px 6px rgba(99, 102, 241, 0.4);
-}
-
+input[type="range"]:focus::-webkit-slider-thumb,
 input[type="range"]:focus::-moz-range-thumb {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3), 0 2px 6px rgba(99, 102, 241, 0.4);
+  box-shadow: var(--shadow-focus);
 }
 
-/* Disabled state */
-input[type="range"]:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-input[type="range"]:disabled::-webkit-slider-thumb {
-  background: #94a3b8;
-  box-shadow: none;
-  cursor: not-allowed;
-}
-
+input[type="range"]:disabled { cursor: not-allowed; opacity: 0.5; }
+input[type="range"]:disabled::-webkit-slider-thumb,
 input[type="range"]:disabled::-moz-range-thumb {
-  background: #94a3b8;
+  background: var(--foreground-subtle);
   box-shadow: none;
   cursor: not-allowed;
 }
@@ -369,39 +454,28 @@ input[type="range"]:disabled::-moz-range-thumb {
    ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
 
-/* Focus visible for keyboard navigation */
 :focus-visible {
-  @apply outline-none ring-2 ring-indigo-500/50 ring-offset-2;
+  outline: none;
 }
 
 /* ============================================
-   SCROLLBAR STYLING
+   SCROLLBAR
    ============================================ */
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
+.custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 4px;
+  background: var(--surface-muted);
+  border-radius: var(--radius-sm);
 }
-
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: var(--border-strong);
+  border-radius: var(--radius-sm);
 }
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--foreground-subtle); }

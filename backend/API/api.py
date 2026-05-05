@@ -83,7 +83,7 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'service': 'knowledge-robot',
-        'version': '1.0.0',
+        'version': '1.1.0',
         'agent_ready': status['litellm_model_initialized'],
         'model': status['model'],
     })

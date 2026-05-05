@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { HelpCircle } from "lucide-react";
 import HelpModal from "@/components/HelpModal";
@@ -59,17 +58,18 @@ export default function RootLayout({
         <button
           onClick={() => setIsHelpOpen(true)}
           className="
-            fixed top-4 right-4 z-40 p-3
-            bg-gradient-to-r from-indigo-500 to-indigo-600 text-white
-            rounded-xl shadow-lg shadow-indigo-500/25
-            hover:from-indigo-600 hover:to-indigo-700 hover:shadow-xl hover:shadow-indigo-500/30
-            hover:scale-105 active:scale-95
-            transition-all duration-200
+            fixed top-4 right-4 z-40 p-2.5
+            bg-[var(--primary)] text-[var(--primary-foreground)]
+            rounded-[var(--radius-md)] shadow-[var(--shadow-sm)]
+            hover:bg-[var(--primary-hover)] hover:shadow-[var(--shadow-card)]
+            active:scale-[0.97]
+            transition-[background-color,transform,box-shadow] duration-150
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-muted)]
           "
           title="Help (Press ? or F1)"
           aria-label="Open help"
         >
-          <HelpCircle size={22} />
+          <HelpCircle size={16} strokeWidth={1.75} />
         </button>
 
         {/* Main Content */}
