@@ -7,47 +7,33 @@ interface ColumnTagsProps {
   onTagClick: (column: string) => void;
 }
 
-// Indigo-based gradient color palette
-const colors = [
-  'from-indigo-100 to-indigo-50 text-indigo-700 border-indigo-200/50 hover:from-indigo-200 hover:to-indigo-100',
-  'from-violet-100 to-violet-50 text-violet-700 border-violet-200/50 hover:from-violet-200 hover:to-violet-100',
-  'from-blue-100 to-blue-50 text-blue-700 border-blue-200/50 hover:from-blue-200 hover:to-blue-100',
-  'from-cyan-100 to-cyan-50 text-cyan-700 border-cyan-200/50 hover:from-cyan-200 hover:to-cyan-100',
-  'from-teal-100 to-teal-50 text-teal-700 border-teal-200/50 hover:from-teal-200 hover:to-teal-100',
-  'from-emerald-100 to-emerald-50 text-emerald-700 border-emerald-200/50 hover:from-emerald-200 hover:to-emerald-100',
-  'from-purple-100 to-purple-50 text-purple-700 border-purple-200/50 hover:from-purple-200 hover:to-purple-100',
-  'from-fuchsia-100 to-fuchsia-50 text-fuchsia-700 border-fuchsia-200/50 hover:from-fuchsia-200 hover:to-fuchsia-100',
-];
-
 export default function ColumnTags({ columns, onTagClick }: ColumnTagsProps) {
   return (
     <div className="card-base-static">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-100 to-indigo-50">
-          <Columns size={18} className="text-indigo-600" />
-        </div>
-        <div>
-          <h3 className="font-semibold text-slate-800">Column Tags</h3>
-          <p className="text-xs text-slate-500">Click to insert into prompt</p>
-        </div>
-        <span className="ml-auto text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-          {columns.length} columns
+      <div className="flex items-center gap-2 mb-3">
+        <span className="step-badge">1</span>
+        <Columns size={16} className="text-[var(--foreground-muted)]" strokeWidth={2} />
+        <h3 className="text-base font-semibold text-[var(--foreground)] tracking-tight">Column Tags</h3>
+        <span className="text-xs text-[var(--foreground-subtle)] hidden sm:inline">— click to insert into prompt</span>
+        <span className="ml-auto tabular-nums text-xs font-medium text-[var(--foreground-muted)]">
+          {columns.length} {columns.length === 1 ? 'column' : 'columns'}
         </span>
       </div>
-      <div className="flex flex-wrap gap-2">
-        {columns.map((column, index) => (
+      <div className="flex flex-wrap gap-1.5">
+        {columns.map((column) => (
           <button
             key={column}
             onClick={() => onTagClick(column)}
-            className={`
-              inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium
-              bg-gradient-to-r border
-              shadow-sm hover:shadow-md hover:-translate-y-0.5
-              active:scale-95 transition-all duration-150 cursor-pointer
-              ${colors[index % colors.length]}
-            `}
+            className="
+              inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium
+              bg-[var(--surface-muted)] text-[var(--foreground)]
+              border border-[var(--border)]
+              hover:bg-[var(--info-bg)] hover:border-[var(--primary)]/40
+              active:scale-[0.97] transition-[background-color,border-color,transform] duration-120 cursor-pointer
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]
+            "
           >
-            <Tag size={12} />
+            <Tag size={11} className="text-[var(--foreground-subtle)]" strokeWidth={1.75} />
             {column}
           </button>
         ))}

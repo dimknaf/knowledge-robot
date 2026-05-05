@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X, HelpCircle, BookOpen } from 'lucide-react';
+import { X, BookOpen } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 interface HelpModalProps {
@@ -245,33 +245,31 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center glass-dark p-4 animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full h-[90vh] flex flex-col border border-slate-200/50 animate-slideUp">
+      <div className="bg-[var(--surface)] rounded-[var(--radius-xl)] shadow-[var(--shadow-pop)] max-w-6xl w-full h-[90vh] flex flex-col border border-[var(--border)] animate-slideUp">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-100 to-indigo-50">
-              <BookOpen size={24} className="text-indigo-600" />
-            </div>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
+          <div className="flex items-center gap-2.5">
+            <BookOpen size={20} className="text-[var(--primary)]" strokeWidth={2} />
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Help & Documentation</h2>
-              <p className="text-sm text-slate-500">Everything you need to know</p>
+              <h2 className="text-base font-semibold text-[var(--foreground)] tracking-tight">Help & Documentation</h2>
+              <p className="text-xs text-[var(--foreground-muted)]">Everything you need to know</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
+            className="p-1.5 hover:bg-[var(--surface-muted)] rounded-[var(--radius)] transition-colors"
             aria-label="Close help"
           >
-            <X size={24} className="text-slate-500" />
+            <X size={18} className="text-[var(--foreground-muted)]" strokeWidth={1.75} />
           </button>
         </div>
 
         {/* Content */}
         <div className="flex flex-1 overflow-hidden">
           {/* Table of Contents */}
-          <div className="w-72 border-r border-slate-200 overflow-y-auto bg-gradient-to-b from-slate-50 to-white custom-scrollbar">
+          <div className="w-72 border-r border-[var(--border)] overflow-y-auto bg-[var(--surface-muted)]/50 custom-scrollbar">
             <div className="p-6">
-              <h3 className="text-xs font-semibold text-slate-500 mb-4 uppercase tracking-wider">
+              <h3 className="text-xs font-semibold text-[var(--foreground-muted)] mb-4 uppercase tracking-wider">
                 Contents
               </h3>
               <nav className="space-y-1">
@@ -280,16 +278,16 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                     key={heading.id}
                     onClick={() => scrollToSection(heading.id)}
                     className={`
-                      w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-150
+                      w-full text-left px-3 py-2 text-sm rounded-[var(--radius)] transition-all duration-150
                       ${heading.level === 1
-                        ? 'font-semibold text-slate-800'
+                        ? 'font-semibold text-[var(--foreground)]'
                         : heading.level === 2
-                        ? 'pl-5 text-slate-700'
-                        : 'pl-8 text-slate-600 text-xs'
+                        ? 'pl-5 text-[var(--foreground)]'
+                        : 'pl-8 text-[var(--foreground-muted)] text-xs'
                       }
                       ${activeSection === heading.id
-                        ? 'bg-gradient-to-r from-indigo-100 to-indigo-50 text-indigo-700 border-l-3 border-indigo-500'
-                        : 'hover:bg-slate-100'
+                        ? 'bg-[var(--accent)]/20 text-[var(--primary)] border-l-[3px] border-[var(--primary)]'
+                        : 'hover:bg-[var(--surface-muted)]'
                       }
                     `}
                   >
@@ -309,7 +307,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                     const text = String(children);
                     const id = text.toLowerCase().replace(/[^\w]+/g, '-');
                     return (
-                      <h1 id={`help-section-${id}`} className="text-3xl font-bold mb-6 text-slate-900 bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text">
+                      <h1 id={`help-section-${id}`} className="text-3xl font-bold mb-6 text-[var(--foreground)] tracking-tight">
                         {children}
                       </h1>
                     );
@@ -318,7 +316,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                     const text = String(children);
                     const id = text.toLowerCase().replace(/[^\w]+/g, '-');
                     return (
-                      <h2 id={`help-section-${id}`} className="text-2xl font-bold mt-10 mb-5 text-slate-900 pb-2 border-b border-slate-200">
+                      <h2 id={`help-section-${id}`} className="text-2xl font-bold mt-10 mb-5 text-[var(--foreground)] pb-2 border-b border-[var(--border)]">
                         {children}
                       </h2>
                     );
@@ -327,42 +325,42 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                     const text = String(children);
                     const id = text.toLowerCase().replace(/[^\w]+/g, '-');
                     return (
-                      <h3 id={`help-section-${id}`} className="text-lg font-semibold mt-8 mb-4 text-slate-800">
+                      <h3 id={`help-section-${id}`} className="text-lg font-semibold mt-8 mb-4 text-[var(--foreground)]">
                         {children}
                       </h3>
                     );
                   },
                   p: ({ children }) => (
-                    <p className="mb-4 text-slate-600 leading-relaxed">{children}</p>
+                    <p className="mb-4 text-[var(--foreground-muted)] leading-relaxed">{children}</p>
                   ),
                   ul: ({ children }) => (
-                    <ul className="list-disc pl-6 mb-5 space-y-2 text-slate-600">{children}</ul>
+                    <ul className="list-disc pl-6 mb-5 space-y-2 text-[var(--foreground-muted)]">{children}</ul>
                   ),
                   ol: ({ children }) => (
-                    <ol className="list-decimal pl-6 mb-5 space-y-2 text-slate-600">{children}</ol>
+                    <ol className="list-decimal pl-6 mb-5 space-y-2 text-[var(--foreground-muted)]">{children}</ol>
                   ),
                   code: ({ children, className }) => {
                     const isInline = !className;
                     return isInline ? (
-                      <code className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded text-sm font-mono border border-indigo-100">
+                      <code className="px-1.5 py-0.5 bg-[var(--surface-muted)] text-[var(--primary)] rounded text-sm font-mono border border-[var(--border)]">
                         {children}
                       </code>
                     ) : (
-                      <code className="block p-4 bg-slate-900 text-slate-100 rounded-xl overflow-x-auto text-sm font-mono">
+                      <code className="block p-4 bg-[var(--foreground)] text-[var(--background)] rounded-[var(--radius-md)] overflow-x-auto text-sm font-mono">
                         {children}
                       </code>
                     );
                   },
                   strong: ({ children }) => (
-                    <strong className="font-semibold text-slate-800">{children}</strong>
+                    <strong className="font-semibold text-[var(--foreground)]">{children}</strong>
                   ),
-                  em: ({ children }) => <em className="italic text-slate-600">{children}</em>,
+                  em: ({ children }) => <em className="italic text-[var(--foreground-muted)]">{children}</em>,
                   blockquote: ({ children }) => (
-                    <blockquote className="border-l-4 border-indigo-400 pl-4 italic text-slate-600 my-5 bg-indigo-50/50 py-2 rounded-r-lg">
+                    <blockquote className="border-l-[3px] border-[var(--primary)] pl-4 italic text-[var(--foreground-muted)] my-5 bg-[var(--surface-muted)]/60 py-2 rounded-r-[var(--radius)]">
                       {children}
                     </blockquote>
                   ),
-                  hr: () => <hr className="my-10 border-t border-slate-200" />,
+                  hr: () => <hr className="my-10 border-t border-[var(--border)]" />,
                 }}
               >
                 {USER_GUIDE_CONTENT}
@@ -372,9 +370,9 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-4 border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-          <p className="text-sm text-slate-500">
-            Press <kbd className="px-2 py-1 bg-white border border-slate-300 rounded-md text-xs font-mono shadow-sm">Esc</kbd> to close
+        <div className="flex items-center justify-between p-4 border-t border-[var(--border)] bg-[var(--surface-muted)] rounded-b-[var(--radius-xl)]">
+          <p className="text-sm text-[var(--foreground-muted)]">
+            Press <kbd className="px-2 py-1 bg-[var(--surface)] border border-[var(--border)] rounded text-xs font-mono shadow-[var(--shadow-xs)]">Esc</kbd> to close
           </p>
           <button
             onClick={onClose}

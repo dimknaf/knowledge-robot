@@ -1,5 +1,9 @@
 # Knowledge Robot
 
+[![Knowledge Robot — tutorial video](https://img.youtube.com/vi/wnuQufwRAXE/maxresdefault.jpg)](https://youtu.be/wnuQufwRAXE "Watch the Knowledge Robot tutorial on YouTube")
+
+> **▶ Watch the tutorial:** [youtu.be/wnuQufwRAXE](https://youtu.be/wnuQufwRAXE) — 2-minute walkthrough of upload → prompt → schema → run → export.
+
 An agentic AI that automates the repetitive work knowledge workers do every day — web research, browsing, data extraction, and structured note-taking. You describe the task once, define the shape of the output you want, and the agent runs it for you over many inputs: searching the web, visiting pages, and returning typed results that match your schema.
 
 - **Agent runtime** — Flask + the OpenAI Agents SDK, LiteLLM-driven and profile-pluggable so you can switch providers with one env var

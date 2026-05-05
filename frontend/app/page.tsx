@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { Bot } from 'lucide-react';
 import FileUpload from '@/components/FileUpload';
 import ColumnTags from '@/components/ColumnTags';
 import DataPreview from '@/components/DataPreview';
@@ -25,6 +26,9 @@ export default function Home() {
   const [browserVisible, setBrowserVisible] = useState(false);
   const [availableBackends, setAvailableBackends] = useState<ScrapeBackend[]>(['local', 'firecrawl']);
   const [browserVisibleSupported, setBrowserVisibleSupported] = useState(false);
+  const [model, setModel] = useState<string | undefined>(undefined);
+  const [llmProfile, setLlmProfile] = useState<string | undefined>(undefined);
+  const [backendOnline, setBackendOnline] = useState<boolean>(false);
   const [currentProfileName, setCurrentProfileName] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [results, setResults] = useState<ProcessedRow[]>([]);
@@ -36,6 +40,9 @@ export default function Home() {
       .then((caps) => {
         setAvailableBackends(caps.availableScrapeBackends);
         setBrowserVisibleSupported(caps.browserVisibleSupported);
+        setModel(caps.model);
+        setLlmProfile(caps.llmProfile);
+        setBackendOnline(true);
         // If current default isn't actually available, fall back to first available.
         if (!caps.availableScrapeBackends.includes(scrapeBackend) && caps.availableScrapeBackends.length > 0) {
           setScrapeBackend(caps.availableScrapeBackends[0]);
@@ -43,6 +50,7 @@ export default function Home() {
       })
       .catch((err) => {
         console.warn('Failed to fetch agent capabilities:', err);
+        setBackendOnline(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -210,21 +218,45 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-4 md:p-8 lg:p-12">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 bg-clip-text text-transparent mb-3">
-            Knowledge Robot
-          </h1>
-          <p className="text-slate-600 text-lg max-w-2xl">
-            An agentic AI for repetitive knowledge work — web research, browsing,
-            structured extraction. Drop in a CSV, describe the task, define the
-            output, and let the agent run it row-by-row.
-          </p>
-        </div>
+    <div className="min-h-screen">
+      {/* Hero Header — full viewport bleed */}
+      <header className="hero-backdrop border-b border-[var(--border)]">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-8 md:py-10">
+          <div className="flex items-start justify-between gap-6 flex-wrap">
+            <div className="flex items-start gap-3 min-w-0">
+              {/* Brand mark — Bot icon tile */}
+              <div
+                className="w-12 h-12 rounded-[var(--radius-md)] flex items-center justify-center text-[var(--primary-foreground)] shadow-[var(--shadow-card)] flex-shrink-0"
+                style={{ background: 'var(--gradient-primary)' }}
+                aria-hidden="true"
+              >
+                <Bot size={24} strokeWidth={2} />
+              </div>
+              <div className="min-w-0">
+                <h1 className="font-bold tracking-tight text-[var(--foreground)] leading-none mb-1.5">
+                  Knowledge Robot
+                </h1>
+                <p className="text-sm text-[var(--foreground-muted)] max-w-2xl leading-relaxed">
+                  An agentic AI for repetitive knowledge work — web research, browsing,
+                  structured extraction. Drop in a CSV, describe the task, define the
+                  output, and let the agent run it row-by-row.
+                </p>
+              </div>
+            </div>
 
-        {/* Main Content */}
+            {/* Backend status chip */}
+            <BackendStatusChip
+              online={backendOnline}
+              backends={availableBackends}
+              model={model}
+              llmProfile={llmProfile}
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-8 md:py-10">
         <div className="space-y-8">
           {/* File Upload - Always show when no CSV */}
           {!csvData && (
@@ -335,7 +367,56 @@ export default function Home() {
             />
           </div>
         </div>
-      </div>
+      </main>
+    </div>
+  );
+}
+
+interface BackendStatusChipProps {
+  online: boolean;
+  backends: ScrapeBackend[];
+  model?: string;
+  llmProfile?: string;
+}
+
+function BackendStatusChip({ online, backends, model, llmProfile }: BackendStatusChipProps) {
+  // Trim model string for display: "deepinfra/google/gemma-4-31B-it" -> "gemma-4-31B-it"
+  const trimmedModel = model
+    ? model.split('/').slice(-1)[0]
+    : null;
+
+  return (
+    <div
+      className="inline-flex items-center gap-2.5 h-9 px-3 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius)] shadow-[var(--shadow-xs)] text-xs"
+      role="status"
+      aria-live="polite"
+    >
+      <span className="flex items-center gap-1.5">
+        <span
+          className={`status-dot ${online ? 'status-dot-live animate-status-pulse' : 'status-dot-offline'}`}
+          aria-hidden="true"
+        />
+        <span className="font-medium text-[var(--foreground)]">
+          {online ? 'Connected' : 'Offline'}
+        </span>
+      </span>
+      {online && backends.length > 0 && (
+        <>
+          <span className="text-[var(--border-strong)]" aria-hidden="true">·</span>
+          <span className="text-[var(--foreground-muted)] capitalize">
+            {backends.join(' + ')}
+          </span>
+        </>
+      )}
+      {online && (llmProfile || trimmedModel) && (
+        <>
+          <span className="text-[var(--border-strong)]" aria-hidden="true">·</span>
+          <span className="font-mono text-[11px] text-[var(--foreground-muted)] truncate max-w-[14rem]" title={model}>
+            {llmProfile && <span className="text-[var(--foreground-subtle)]">{llmProfile}/</span>}
+            {trimmedModel}
+          </span>
+        </>
+      )}
     </div>
   );
 }

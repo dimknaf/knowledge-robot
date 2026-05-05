@@ -17,11 +17,14 @@ const typeIcons: Record<FieldType, React.ReactNode> = {
   date: <Calendar size={12} />,
 };
 
-const typeColors: Record<FieldType, string> = {
-  text: 'from-indigo-100 to-indigo-50 text-indigo-700 border-indigo-200/50',
-  number: 'from-emerald-100 to-emerald-50 text-emerald-700 border-emerald-200/50',
-  boolean: 'from-purple-100 to-purple-50 text-purple-700 border-purple-200/50',
-  date: 'from-amber-100 to-amber-50 text-amber-700 border-amber-200/50',
+// Per-type identification is conveyed by a small leading dot (color-coded)
+// rather than tinting the whole chip — keeps the design palette restrained
+// while still making types scannable at a glance.
+const typeDotColor: Record<FieldType, string> = {
+  text: 'bg-[var(--primary)]',
+  number: 'bg-[var(--success)]',
+  boolean: 'bg-[var(--info)]',
+  date: 'bg-[var(--warning)]',
 };
 
 export default function OutputSchemaBuilder({
@@ -58,14 +61,13 @@ export default function OutputSchemaBuilder({
 
   return (
     <div className="card-base">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="p-2 rounded-lg bg-gradient-to-br from-slate-100 to-slate-50">
-          <FileOutput size={18} className="text-slate-600" />
-        </div>
-        <h3 className="font-semibold text-slate-800">Output Schema</h3>
+      <div className="flex items-center gap-2 mb-3">
+        <span className="step-badge">2</span>
+        <FileOutput size={16} className="text-[var(--foreground-muted)]" strokeWidth={2} />
+        <h3 className="text-base font-semibold text-[var(--foreground)] tracking-tight">Output Schema</h3>
         {fields.length > 0 && (
-          <span className="ml-auto text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-            {fields.length} field{fields.length !== 1 ? 's' : ''}
+          <span className="ml-auto tabular-nums text-xs font-medium text-[var(--foreground-muted)]">
+            {fields.length} {fields.length === 1 ? 'field' : 'fields'}
           </span>
         )}
       </div>
@@ -76,26 +78,27 @@ export default function OutputSchemaBuilder({
           {fields.map((field) => (
             <div
               key={field.id}
-              className="group flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all duration-150"
+              className="group flex items-center gap-3 p-3 bg-[var(--surface)] rounded-[var(--radius)] border border-[var(--border)] hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-sm)] transition-all duration-150"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-sm text-slate-800 truncate">
+                  <span className="font-medium text-sm text-[var(--foreground)] truncate">
                     {field.name}
                   </span>
-                  <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-gradient-to-r border ${typeColors[field.type]}`}>
+                  <span className="inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full bg-[var(--surface-muted)] text-[var(--foreground-muted)] border border-[var(--border)]">
+                    <span className={`w-1.5 h-1.5 rounded-full ${typeDotColor[field.type]}`} aria-hidden="true" />
                     {typeIcons[field.type]}
                     {field.type}
                   </span>
                 </div>
                 {field.description && (
-                  <p className="text-xs text-slate-500 mt-1 truncate">{field.description}</p>
+                  <p className="text-xs text-[var(--foreground-muted)] mt-1 truncate">{field.description}</p>
                 )}
               </div>
               <button
                 onClick={() => removeField(field.id)}
                 disabled={disabled}
-                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                className="p-1.5 text-[var(--foreground-subtle)] hover:text-[var(--danger)] hover:bg-[var(--danger-bg)] rounded-[var(--radius)] transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
                 title="Remove field"
               >
                 <Trash2 size={16} />
@@ -106,10 +109,10 @@ export default function OutputSchemaBuilder({
       )}
 
       {/* Add New Field */}
-      <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200/60">
+      <div className="space-y-3 p-4 bg-[var(--surface-muted)] rounded-[var(--radius-md)] border border-[var(--border)]">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1.5">
+            <label className="block text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--foreground-subtle)] mb-1.5">
               Field Name
             </label>
             <input
@@ -122,7 +125,7 @@ export default function OutputSchemaBuilder({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1.5">
+            <label className="block text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--foreground-subtle)] mb-1.5">
               Field Type
             </label>
             <select
@@ -141,7 +144,7 @@ export default function OutputSchemaBuilder({
           </div>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1.5">
+          <label className="block text-xs font-medium text-[var(--foreground-muted)] mb-1.5">
             Description (optional)
           </label>
           <input
