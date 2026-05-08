@@ -8,8 +8,15 @@ export const parseCSV = (file: File): Promise<CsvData> => {
       dynamicTyping: true,
       skipEmptyLines: true,
       complete: (results) => {
-        if (results.errors.length > 0) {
-          reject(new Error(results.errors[0].message));
+        // PapaParse emits a non-fatal "UndetectableDelimiter" warning when the
+        // sample contains none of `,` `\t` `|` `;` (e.g. a single-column CSV).
+        // The data still parses correctly using the default `,` delimiter,
+        // so this warning is informational — drop it before deciding to reject.
+        const fatalErrors = results.errors.filter(
+          (e) => !(e.type === 'Delimiter' && e.code === 'UndetectableDelimiter')
+        );
+        if (fatalErrors.length > 0) {
+          reject(new Error(fatalErrors[0].message));
           return;
         }
 

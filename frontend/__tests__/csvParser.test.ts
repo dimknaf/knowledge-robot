@@ -59,4 +59,17 @@ describe('parseCSV', () => {
     expect(result.headers).toEqual(['a', 'b', 'c']);
     expect(result.rows).toEqual([]);
   });
+
+  it('parses a single-column CSV (no delimiter character anywhere)', async () => {
+    // Mirrors test_symbols_failed.csv: header + tickers, CRLF line endings,
+    // no commas/tabs/pipes/semicolons. PapaParse can't auto-detect a delimiter
+    // and emits an "UndetectableDelimiter" warning; the data still parses fine.
+    const csv = 'Symbol\r\nAMZN\r\nCRSR\r\nAMD\r\nMSFT\r\n0700.HK\r\n';
+    const result = await parseCSV(fileFromString(csv));
+
+    expect(result.headers).toEqual(['Symbol']);
+    expect(result.rows).toHaveLength(5);
+    expect(result.rows[0]).toEqual({ Symbol: 'AMZN' });
+    expect(result.rows[4]).toEqual({ Symbol: '0700.HK' });
+  });
 });
