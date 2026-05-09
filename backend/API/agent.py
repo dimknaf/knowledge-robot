@@ -28,10 +28,13 @@ set_tracing_disabled(disabled=True)
 
 
 def _create_model() -> LitellmModel:
-    return LitellmModel(
-        model=settings.resolved_agent_model,
-        api_key=settings.resolved_api_key,
-    )
+    kwargs: dict = {
+        "model": settings.resolved_agent_model,
+        "api_key": settings.resolved_api_key,
+    }
+    if settings.resolved_api_base:
+        kwargs["base_url"] = settings.resolved_api_base
+    return LitellmModel(**kwargs)
 
 
 def _build_instructions(user_task: str, output_schema: list[dict], scrape_backend: str) -> str:

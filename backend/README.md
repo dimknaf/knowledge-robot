@@ -8,7 +8,7 @@ The backend exposes a small HTTP API. Each call accepts one row of input data, a
 
 ### Key Features
 
-- **Profile-based LLM provider** — `LLM_PROFILE=deepinfra` runs `deepinfra/google/gemma-4-31B-it`. Adding a provider is one entry in `_LLM_PROFILES` (see `config.py`).
+- **Profile-based LLM provider** — `LLM_PROFILE` flips the whole stack: ships with six profiles (`gemini`, `deepinfra`, `nim`, `together`, `local`, `local_gemma`). Cloud providers (Gemini 3.1 Flash Lite, DeepInfra, NVIDIA NIM, Together) and OpenAI-compatible local servers (llama.cpp, vLLM, LM Studio) all work via the same dict in `config.py`.
 - **Two scrape backends, picked per request**:
   - `local` (default) — Playwright (`search_google`) + crawl4ai (`visit_webpage`). Chromium baked into the image.
   - `firecrawl` — Firecrawl MCP (`firecrawl_scrape`, `firecrawl_search`).
@@ -58,7 +58,7 @@ backend/
 ### Prerequisites
 
 - Python 3.13+
-- DeepInfra API key (default profile) — or any LiteLLM-supported provider after adding it to `_LLM_PROFILES`
+- API key for one of the six built-in profiles (`gemini`, `deepinfra`, `nim`, `together`, `local`, `local_gemma`) — or any LiteLLM-supported provider after adding it to `_LLM_PROFILES`
 - Firecrawl API key (only required if you'll use `scrape_backend=firecrawl`)
 - For host run: `playwright install chromium` after `pip install`
 
@@ -71,17 +71,32 @@ pip install -r requirements.txt
 playwright install chromium    # only needed for host runs
 ```
 
-2. **Configure environment** (create `.env`):
+2. **Configure environment** (create `.env` — pick the profile you want):
 ```bash
-# Required — LLM provider profile + key
+# Required — LLM provider profile + matching API key
 LLM_PROFILE=deepinfra
 DEEPINFRA_API_KEY=your-deepinfra-api-key
+# GEMINI_API_KEY=your-gemini-api-key            # for LLM_PROFILE=gemini
+# NVIDIA_NIM_API_KEY=your-nim-api-key           # for LLM_PROFILE=nim
+# TOGETHER_API_KEY=your-together-api-key        # for LLM_PROFILE=together
+
+# Local OpenAI-compatible server (llama.cpp / vLLM / LM Studio):
+# LLM_PROFILE=local                              # Qwen on :8003 by default
+# LOCAL_API_KEY=sk-noauth                        # any non-empty value
+# LOCAL_API_BASE=http://localhost:8003/v1
+#   (inside Docker: http://host.docker.internal:8003/v1)
+
+# LLM_PROFILE=local_gemma                        # Gemma 4 31B AWQ on :8002
+# LOCAL_API_KEY=sk-noauth
+# LOCAL_API_BASE_GEMMA=http://localhost:8002/v1
+# AGENT_MODEL=                                   # only needed if your server uses a different model id
 
 # Required if you'll use the firecrawl backend
 FIRECRAWL_API_KEY=your-firecrawl-api-key
 
 # Optional overrides
-# AGENT_MODEL=deepinfra/google/gemma-4-31B-it
+# AGENT_MODEL=                                   # override the profile's model string
+# AGENT_API_BASE=                                # global base_url override
 # AGENT_MAX_TURNS=15
 # FIRECRAWL_MAX_CONTENT_LENGTH=20000
 # DEBUG_MODE=true
@@ -114,10 +129,17 @@ wsl -- bash -c 'cd /mnt/c/.../knowledge-robot && \
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `LLM_PROFILE` | Yes | `deepinfra` | Picks an entry from `_LLM_PROFILES` in `config.py` |
+| `LLM_PROFILE` | Yes | `deepinfra` | Picks an entry from `_LLM_PROFILES` in `config.py`. Ships with `gemini` / `deepinfra` / `nim` / `together` / `local` / `local_gemma` |
+| `GEMINI_API_KEY` | Yes (for `gemini` profile) | - | Google AI Studio key |
 | `DEEPINFRA_API_KEY` | Yes (for `deepinfra` profile) | - | DeepInfra API key |
+| `NVIDIA_NIM_API_KEY` | Yes (for `nim` profile) | - | NVIDIA NIM API key |
+| `TOGETHER_API_KEY` | Yes (for `together` profile) | - | Together AI API key |
+| `LOCAL_API_KEY` | Yes (for `local` / `local_gemma`) | - | Any non-empty string; the OpenAI client validates it client-side, the local server typically ignores it |
+| `LOCAL_API_BASE` | Yes (for `local` profile) | - | OpenAI-compatible URL, e.g. `http://localhost:8003/v1` (or `http://host.docker.internal:8003/v1` from inside Docker) |
+| `LOCAL_API_BASE_GEMMA` | Yes (for `local_gemma` profile) | - | OpenAI-compatible URL for the Gemma server, e.g. `http://localhost:8002/v1` |
 | `FIRECRAWL_API_KEY` | When `scrape_backend=firecrawl` | - | Firecrawl API key |
-| `AGENT_MODEL` | No | (profile default) | Override the profile's model string, e.g. `deepinfra/google/gemma-4-31B-it` |
+| `AGENT_MODEL` | No | (profile default) | Override the profile's model string, e.g. `openai/cyankiwi/gemma-4-31B-it-AWQ-4bit` |
+| `AGENT_API_BASE` | No | (profile default) | Global `base_url` override (wins over the per-profile `*_API_BASE`) |
 | `AGENT_MAX_TURNS` | No | `15` | Max tool calls per row |
 | `AGENT_SUBAGENT_MAX_TURNS` | No | `30` | Max tool calls inside a subagent |
 | `TOOL_OUTPUT_MAX_CHARS` | No | `8000` | Per-tool truncation cap for local-backend tools |
@@ -137,23 +159,33 @@ wsl -- bash -c 'cd /mnt/c/.../knowledge-robot && \
 
 ### Supported LLM Providers
 
-The default profile is `deepinfra`. To add a provider, append to `_LLM_PROFILES` in [API/config.py](API/config.py):
+Six profiles ship in [API/config.py](API/config.py):
+
+| Profile | Default model | Required env |
+|---------|---------------|--------------|
+| `gemini` | `gemini/gemini-3.1-flash-lite-preview` | `GEMINI_API_KEY` |
+| `deepinfra` | `deepinfra/google/gemma-4-31B-it` | `DEEPINFRA_API_KEY` |
+| `nim` | `nvidia_nim/google/gemma-4-31b-it` | `NVIDIA_NIM_API_KEY` |
+| `together` | `together_ai/google/gemma-4-31B-it` | `TOGETHER_API_KEY` |
+| `local` | `openai/qwen` (llama.cpp Qwen on :8003) | `LOCAL_API_KEY` + `LOCAL_API_BASE` |
+| `local_gemma` | `openai/cyankiwi/gemma-4-31B-it-AWQ-4bit` (Gemma 4 31B AWQ on :8002) | `LOCAL_API_KEY` + `LOCAL_API_BASE_GEMMA` |
+
+Set `LLM_PROFILE=<key>` in `.env` to switch — that's it, no other vars to flip. If your local server exposes the model under a different name, edit the `model` field of the profile in [API/config.py](API/config.py) (or override at runtime with `AGENT_MODEL`).
+
+To add another LiteLLM-supported provider, append to `_LLM_PROFILES`:
 
 ```python
 _LLM_PROFILES = {
-    "deepinfra": {
-        "model": "deepinfra/google/gemma-4-31B-it",
-        "api_key_env": "DEEPINFRA_API_KEY",
+    # ... existing six ...
+    "anthropic": {
+        "model": "anthropic/claude-sonnet-4-5",
+        "api_key_env": "ANTHROPIC_API_KEY",
+        "api_base_env": "",
     },
-    # Examples (not currently wired):
-    # "gemini":   {"model": "gemini/gemini-2.5-flash", "api_key_env": "GEMINI_API_KEY"},
-    # "anthropic":{"model": "anthropic/claude-3-5-sonnet-latest", "api_key_env": "ANTHROPIC_API_KEY"},
-    # "openai":   {"model": "openai/gpt-4o-mini", "api_key_env": "OPENAI_API_KEY"},
-    # "nim":      {"model": "nvidia_nim/google/gemma-4-31b-it", "api_key_env": "NVIDIA_NIM_API_KEY"},
 }
 ```
 
-Set `LLM_PROFILE=<key>` in `.env` to switch. **Note**: `ModelSettings()` is bare in this codebase — passing `reasoning_effort` raises `UnsupportedParamsError` on DeepInfra/Gemma. If you want reasoning on a Gemini-class profile, set `litellm.drop_params=True` at module load.
+**Note**: `ModelSettings()` is bare in this codebase — passing `reasoning_effort` raises `UnsupportedParamsError` on DeepInfra/Gemma. If you want reasoning on a Gemini-class profile, set `litellm.drop_params=True` at module load.
 
 ## API Endpoints
 
@@ -265,7 +297,7 @@ Module-level `process_row()` validates the request, builds the dynamic Pydantic 
 ### 2. Agent factory + dispatcher (`agent.py`)
 
 - `set_tracing_disabled(disabled=True)` at module load (silences OpenAI tracing service spam).
-- `_create_model()` returns a `LitellmModel` from `settings.resolved_agent_model` + `settings.resolved_api_key`.
+- `_create_model()` returns a `LitellmModel` from `settings.resolved_agent_model` + `settings.resolved_api_key`, plus `base_url=settings.resolved_api_base` when the active profile defines an `api_base_env` (used by `local` / `local_gemma`).
 - `_build_instructions(user_task, output_schema, scrape_backend)` returns the system prompt — branches by backend.
 - `_run_firecrawl(...)` and `_run_local(...)` build the Agent with the right tool list and run it. Both end with `StopAtTools(["submit_result"])`.
 - `run_agent(...)` is the public dispatcher; raises `ValueError` for anything other than `"firecrawl"` / `"local"`.
@@ -290,6 +322,7 @@ Module-level `process_row()` validates the request, builds the dynamic Pydantic 
 `Settings(BaseSettings)` from `pydantic-settings`. Reads `.env` once at import. Singleton `settings` exposed via `get_config()` shim. Computed properties:
 - `resolved_agent_model` — `agent_model` override OR `_LLM_PROFILES[llm_profile]["model"]`
 - `resolved_api_key` — env var named by `_LLM_PROFILES[llm_profile]["api_key_env"]`
+- `resolved_api_base` — `agent_api_base` override OR env var named by `_LLM_PROFILES[llm_profile]["api_base_env"]` (empty for cloud profiles, set for `local` / `local_gemma`)
 - `running_in_docker` — checks `/.dockerenv` or `RUNNING_IN_DOCKER=true`
 - `browser_visible_supported` — true on host, true in WSLg overlay, false in plain Docker
 
